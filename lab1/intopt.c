@@ -5,7 +5,7 @@ double** make_matrix(int m, int n)	{
 	double**		a;
 	int					i;
 
-	a = calloc(m, sizeof(double));
+	a = calloc(m, sizeof(double*));
 	for (i = 0; i < m; i += 1)	{
 		a[i] = calloc(n, sizeof(double));
 	}
@@ -50,9 +50,9 @@ int main()	{
 
 	for (i = 0; i < n; i += 1)	{
 		if (i == n - 1)	{
-			printf("%lf*x%d", c[i], i);
+			printf("%lf*x_%d", c[i], i);
 		} else	{
-			printf("%lf*x%d + ", c[i], i);
+			printf("%lf*x_%d + ", c[i], i);
 		}
 	}
 	printf("\n");
