@@ -22,9 +22,9 @@ double xsimplex(int m, int n, double** a, double* b, double* c, double* x, doubl
 
 void pivot(struct simplex_t* s, int row, int col);
 
-int initial(struct simplex_t** s, int m, int n, double** a, double* b, double* c, double* x, double y, int* var);
+int initial(struct simplex_t* s, int m, int n, double** a, double* b, double* c, double* x, double y, int* var);
 
-int init(struct simplex_t** s, int m, int n, double** a, double* b, double* c, double* x, double y, int* var);
+int init(struct simplex_t* s, int m, int n, double** a, double* b, double* c, double* x, double y, int* var);
 
 int select_nonbasic(struct simplex_t* s);
 
@@ -107,19 +107,17 @@ double simplex(int m, int n, double** a, double* b, double* c, double* x, double
 }
 
 double xsimplex(int m, int n, double** a, double* b, double* c, double* x, double y, int* var, int h) {
-    struct simplex_t*   s;
+    struct simplex_t    s;
     int                 i, row, col;
 
     if (!initial(&s, m, n, a, b, c, x, y, var)) {
-        free(s->var);
-        return NAN; //not a number
+        free(s.var);
+        return NAN; //not a number.
     }
 
-    print(s);
-
-    while ((col = select_nonbasic(s)) >= 0) {
+    while ((col = select_nonbasic(&s)) >= 0) {
         row = -1;
-        for (i = 0; i < m; ++i) {
+        for (i = 0; i < m; i++) {
             if (a[i][col] > epsilon &&
             (row < 0 || b[i] / a[i][col] < b[row] / a[row][col])) {
                 row = i;
@@ -127,39 +125,36 @@ double xsimplex(int m, int n, double** a, double* b, double* c, double* x, doubl
         }
 
         if (row < 0) {
-            free(s->var);
-            return INFINITY; //unbounded
+            free(s.var);
+            return INFINITY; //unbounded.
         }
 
-        pivot(s, row, col);
-        print(s);
+        pivot(&s, row, col);
+        print(&s);
     }
 
     if (h == 0) {
-        for (i = 0; i < n; ++i) {
-            if (s->var[i] < n) {
-                x[s->var[i]] = 0;
+        for (i = 0; i < n; i++) {
+            if (s.var[i] < n) {
+                x[s.var[i]] = 0;
             }
         }
-        for (i = 0; i < m; ++i) {
-            if (s->var[n + i] < n) {
-                x[s->var[n + i]] = s->b[i];
+        for (i = 0; i < m; i++) {
+            if (s.var[n + i] < n) {
+                x[s.var[n + i]] = s.b[i];
             }
         }
-        free(s->var);
+        free(s.var);
     } else {
-        for (i = 0; i < n; ++i) {
+        for (i = 0; i < n; i++) {
             x[i] = 0;
         }
-        for (i = n; i < n + m; ++i) {
-            x[i] = s->b[i - n];
+        for (i = n; i < n + m; i++) {
+            x[i] = s.b[i - n];
         }
     }
 
-    double result = s->y;
-    free(s);
-
-    return result;
+    return s.y;
 }
 
 void pivot(struct simplex_t* s, int row, int col) {
@@ -216,7 +211,7 @@ void pivot(struct simplex_t* s, int row, int col) {
     printf("\npivot: row: %d, col: %d\n\n", row, col);
 }
 
-int initial(struct simplex_t** s, int m, int n, double** a, double* b, double* c, double* x, double y, int* var) {
+int initial(struct simplex_t* s, int m, int n, double** a, double* b, double* c, double* x, double y, int* var) {
     int             i, j, k;
     double          w;
 
@@ -226,28 +221,26 @@ int initial(struct simplex_t** s, int m, int n, double** a, double* b, double* c
     return 1; //feasible
 }
 
-int init(struct simplex_t** s, int m, int n, double** a, double* b, double* c, double* x, double y, int* var) {
+int init(struct simplex_t* s, int m, int n, double** a, double* b, double* c, double* x, double y, int* var) {
     int i, k;
 
-    *s = (struct simplex_t*)malloc(sizeof(struct simplex_t));
+    s->m = m;
+    s->n = n;
+    s->a = a;
+    s->b = b;
+    s->c = c;
+    s->x = x;
+    s->y = y;
+    s->var = var;
 
-    (*s)->m = m;
-    (*s)->n = n;
-    (*s)->a = a;
-    (*s)->b = b;
-    (*s)->c = c;
-    (*s)->x = x;
-    (*s)->y = y;
-    (*s)->var = var;
-
-    if ((*s)->var == NULL) {
-        (*s)->var = (int*)calloc(m + n + 1, sizeof(int));
-        for (i = 0; i < m+n; ++i) {
-            (*s)->var[i] = i;
+    if (s->var == NULL) {
+        s->var = (int*)calloc(m + n + 1, sizeof(int));
+        for (i = 0; i < m + n; i++) {
+            s->var[i] = i;
         }
     }
 
-    for (k = 0, i = 1; i < m; ++i) {
+    for (k = 0, i = 1; i < m; i++) {
         if (b[i] < b[k]) {
             k = i;
         }
