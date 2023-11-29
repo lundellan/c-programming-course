@@ -126,7 +126,7 @@ double xsimplex(int m, int n, double** a, double* b, double* c, double* x, doubl
 
         if (row < 0) {
             free(s.var);
-            return INFINITY; //unbounded.
+            return INFINITY; // unbounded
         }
 
         pivot(&s, row, col);
@@ -217,8 +217,8 @@ int initial(struct simplex_t* s, int m, int n, double** a, double* b, double* c,
 
     k = init(s, m, n, a, b, c, x, y, var);
 
-    //assume b[k] >= 0.
-    return 1; //feasible
+    // assume b[k] >= 0
+    return 1; // feasible
 }
 
 int init(struct simplex_t* s, int m, int n, double** a, double* b, double* c, double* x, double y, int* var) {
