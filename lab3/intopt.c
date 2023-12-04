@@ -5,7 +5,7 @@
 double epsilon = 10e-6;
 int count = 0;
 
-struct simplex_t{
+struct simplex_t    {
     int         m;
     int         n;
     int*        var;
@@ -30,39 +30,41 @@ int select_nonbasic(struct simplex_t* s);
 
 int init(struct simplex_t* s, int m, int n, double** a, double* b, double* c, double* x, double y, int* var);
 
-int main() {
-    int m;
-    int n;
-    double** a;
-    double* b;
-    double* c;
-    double* x;
-    size_t i;
-    int glob;
+int main()  {
+    int         m;
+    int         n;
+    double**    a;
+    double*     b;
+    double*     c;
+    double*     x;
+    double      y;
+    int         i;
 
     scanf("%d", &m);
     scanf("%d", &n);
 
-    a = calloc(m, sizeof(double*));
-    b = calloc(m, sizeof(double));
-    c = calloc(n, sizeof(double));
-    x = calloc(n + 1, sizeof(double));
+    a = (double**)calloc(m, sizeof(double*));
+    b = (double*)calloc(m, sizeof(double));
+    c = (double*)calloc(n, sizeof(double));
+    x = (double*)calloc(n + m, sizeof(double));
 
     for (i = 0; i < n; i++) {
         scanf("%lf", &c[i]);
-        glob += 1;
     }
+
     for (i = 0; i < m; i++) {
-        a[i] = calloc(n, sizeof(double));
-        for (size_t j = 0; j < n; ++j) {
-            scanf("%lf",&a[i][j]);
+        a[i] = (double*)calloc(n + 1, sizeof(double));
+        for (size_t j = 0; j < n; j++) {
+            scanf("%lf", &a[i][j]);
         }
     }
+
     for (i = 0; i < m; i++) {
         scanf("%lf", &b[i]);
     }
 
-    printf("\nresult: %lf\n", simplex(m, n, a, b, c, x, 0));
+    y = 0;
+    printf("\nresult: %lf\n", simplex(m, n, a, b, c, x, y));
 
     free(b);
     for (i = 0; i < m; i++) {
@@ -108,7 +110,7 @@ double simplex(int m, int n, double** a, double* b, double* c, double* x, double
     return xsimplex(m, n, a, b, c, x, y, NULL, 0);
 }
 
-double xsimplex(int m, int n, double** a, double* b, double* c, double* x, double y, int* var, int h) {
+double xsimplex(int m, int n, double** a, double* b, double* c, double* x, double y, int* var, int h)   {
     struct simplex_t    s;
     int                 i, row, col;
 
@@ -120,8 +122,7 @@ double xsimplex(int m, int n, double** a, double* b, double* c, double* x, doubl
     while ((col = select_nonbasic(&s)) >= 0) {
         row = -1;
         for (i = 0; i < m; i++) {
-            if (a[i][col] > epsilon &&
-            (row < 0 || b[i] / a[i][col] < b[row] / a[row][col])) {
+            if (a[i][col] > epsilon && (row < 0 || b[i] / a[i][col] < b[row] / a[row][col]))    {
                 row = i;
             }
         }
@@ -159,7 +160,7 @@ double xsimplex(int m, int n, double** a, double* b, double* c, double* x, doubl
     return s.y;
 }
 
-void pivot(struct simplex_t* s, int row, int col) {
+void pivot(struct simplex_t* s, int row, int col)   {
     double**        a = s->a;
     double*         b = s->b;
     double*         c = s->c;
@@ -280,22 +281,22 @@ int initial(struct simplex_t* s, int m, int n, double** a, double* b, double* c,
     for (k = 0; k < n; k++) {
         next_k = 0;
         for (j = 0; j < n; j++) {
-           if (k == s->var[j]) {
+            if (k == s->var[j]) {
                // x_k is nonbasic. add c_k
                t[j] = t[j] + s->c[k];
                next_k = 1;
                break;
-           }
+            }
         }
 
         if (next_k)
             continue;
 
         for (j = 0; j < m; j++) {
-           if (s->var[n + j] == k) {
+            if (s->var[n + j] == k) {
                // x_k is at row j
                break;
-           }
+            }
         }
 
         s->y = s->y + s->c[k] * s->b[j];
@@ -314,7 +315,7 @@ int initial(struct simplex_t* s, int m, int n, double** a, double* b, double* c,
     return 1;
 }
 
-void prepare(struct simplex_t* s, int k) {
+void prepare(struct simplex_t* s, int k)    {
     int m = s->m;
     int n = s->n;
     int i;
@@ -339,7 +340,7 @@ void prepare(struct simplex_t* s, int k) {
     pivot(s, k, n - 1);
 }
 
-int select_nonbasic(struct simplex_t* s) {
+int select_nonbasic(struct simplex_t* s)    {
     int i;
     for (i = 0; i < s->n; i++) {
         if (s->c[i] > epsilon) {
@@ -349,7 +350,7 @@ int select_nonbasic(struct simplex_t* s) {
     return -1;
 }
 
-int init(struct simplex_t* s, int m, int n, double** a, double* b, double* c, double* x, double y, int* var) {
+int init(struct simplex_t* s, int m, int n, double** a, double* b, double* c, double* x, double y, int* var)    {
     int i, k;
 
     s->m = m;
