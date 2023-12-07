@@ -6,7 +6,7 @@
 double epsilon = 10e-6;
 int count = 0;
 
-struct simplex_t{
+struct simplex_t    {
     int         m;
     int         n;
     int*        var;
@@ -34,71 +34,77 @@ struct node_t {
     double      z;
 };
 
-struct node_pointer_t {
+struct set_t {
     int             count;
     int             alloc;
     struct node_t** nodes;
 };
 
 double simplex(int m, int n, double** a, double* b, double* c, double* x, double y);
+
 double xsimplex(int m, int n, double** a, double* b, double* c, double* x, double y, int* var, int h);
+
 void pivot(struct simplex_t* s, int row, int col);
+
 int initial(struct simplex_t* s, int m, int n, double** a, double* b, double* c, double* x, double y, int* var);
+
 void prepare(struct simplex_t* s, int k);
+
 int select_nonbasic(struct simplex_t* s);
+
 int init(struct simplex_t* s, int m, int n, double** a, double* b, double* c, double* x, double y, int* var);
 
 struct node_t* initial_node(int m, int n, double** a, double* b, double* c);
 struct node_t* extend(struct node_t* p, int m, int n, double** a, double* b, double* c, int k, double ak, double bk);
 int is_integer(double* xp);
 int integer(struct node_t* p);
-void bound(struct node_t* p, struct node_pointer_t* h, double* zp, double* x);
+void bound(struct node_t* p, struct set_t* h, double* zp, double* x);
 int branch(struct node_t* q, double z);
-void succ(struct node_t* p, struct node_pointer_t* h, int m, int n, double** a, double* b, double* c, int k, double ak, double bk, double* zp, double* x);
+void succ(struct node_t* p, struct set_t* h, int m, int n, double** a, double* b, double* c, int k, double ak, double bk, double* zp, double* x);
 double intopt(int m, int n, double** a, double* b, double* c, double* x);
 
-struct node_pointer_t* create_set();
-void add(struct node_pointer_t* h, struct node_t* p);
-int size(struct node_pointer_t* h);
-struct node_t* pop(struct node_pointer_t* h);
-void free_set(struct node_pointer_t* h);
 void free_node(struct node_t* p);
+struct set_t* create_set();
+void add(struct set_t* h, struct node_t* p);
+int size(struct set_t* h);
+struct node_t* pop(struct set_t* h);
+void free_set(struct set_t* h);
 
-int main() {
-    int m;
-    int n;
-    double** a;
-    double* b;
-    double* c;
-    double* x;
-    size_t i;
-    int glob;
+int main()  {
+    int         m;
+    int         n;
+    double**    a;
+    double*     b;
+    double*     c;
+    double*     x;
+    double      y;
+    int         i;
 
     scanf("%d", &m);
     scanf("%d", &n);
 
-    a = calloc(m, sizeof(double*));
-    b = calloc(m, sizeof(double));
-    c = calloc(n, sizeof(double));
-    x = calloc(n + 1, sizeof(double));
+    a = (double**)calloc(m, sizeof(double*));
+    b = (double*)calloc(m, sizeof(double));
+    c = (double*)calloc(n, sizeof(double));
+    x = (double*)calloc(n + m, sizeof(double));
 
     for (i = 0; i < n; i++) {
         scanf("%lf", &c[i]);
-        glob += 1;
     }
+
     for (i = 0; i < m; i++) {
-        a[i] = calloc(n, sizeof(double));
-        for (size_t j = 0; j < n; ++j) {
-            scanf("%lf",&a[i][j]);
+        a[i] = (double*)calloc(n + 1, sizeof(double));
+        for (size_t j = 0; j < n; j++) {
+            scanf("%lf", &a[i][j]);
         }
     }
+
     for (i = 0; i < m; i++) {
         scanf("%lf", &b[i]);
     }
 
-    // printf("\nresult: %lf\n", simplex(m, n, a, b, c, x, 0));
-    double z = intopt(m, n, a, b, c, x);
-    printf("result: %lf\n", z);
+    y = 0;
+    printf("\nresult: %lf\n", simplex(m, n, a, b, c, x, y));
 
     free(b);
     for (i = 0; i < m; i++) {
@@ -144,7 +150,7 @@ double simplex(int m, int n, double** a, double* b, double* c, double* x, double
     return xsimplex(m, n, a, b, c, x, y, NULL, 0);
 }
 
-double xsimplex(int m, int n, double** a, double* b, double* c, double* x, double y, int* var, int h) {
+double xsimplex(int m, int n, double** a, double* b, double* c, double* x, double y, int* var, int h)   {
     struct simplex_t    s;
     int                 i, row, col;
 
@@ -156,8 +162,7 @@ double xsimplex(int m, int n, double** a, double* b, double* c, double* x, doubl
     while ((col = select_nonbasic(&s)) >= 0) {
         row = -1;
         for (i = 0; i < m; i++) {
-            if (a[i][col] > epsilon &&
-            (row < 0 || b[i] / a[i][col] < b[row] / a[row][col])) {
+            if (a[i][col] > epsilon && (row < 0 || b[i] / a[i][col] < b[row] / a[row][col]))    {
                 row = i;
             }
         }
@@ -195,7 +200,7 @@ double xsimplex(int m, int n, double** a, double* b, double* c, double* x, doubl
     return s.y;
 }
 
-void pivot(struct simplex_t* s, int row, int col) {
+void pivot(struct simplex_t* s, int row, int col)   {
     double**        a = s->a;
     double*         b = s->b;
     double*         c = s->c;
@@ -316,22 +321,22 @@ int initial(struct simplex_t* s, int m, int n, double** a, double* b, double* c,
     for (k = 0; k < n; k++) {
         next_k = 0;
         for (j = 0; j < n; j++) {
-           if (k == s->var[j]) {
+            if (k == s->var[j]) {
                // x_k is nonbasic. add c_k
                t[j] = t[j] + s->c[k];
                next_k = 1;
                break;
-           }
+            }
         }
 
         if (next_k)
             continue;
 
         for (j = 0; j < m; j++) {
-           if (s->var[n + j] == k) {
+            if (s->var[n + j] == k) {
                // x_k is at row j
                break;
-           }
+            }
         }
 
         s->y = s->y + s->c[k] * s->b[j];
@@ -350,7 +355,7 @@ int initial(struct simplex_t* s, int m, int n, double** a, double* b, double* c,
     return 1;
 }
 
-void prepare(struct simplex_t* s, int k) {
+void prepare(struct simplex_t* s, int k)    {
     int m = s->m;
     int n = s->n;
     int i;
@@ -375,7 +380,7 @@ void prepare(struct simplex_t* s, int k) {
     pivot(s, k, n - 1);
 }
 
-int select_nonbasic(struct simplex_t* s) {
+int select_nonbasic(struct simplex_t* s)    {
     int i;
     for (i = 0; i < s->n; i++) {
         if (s->c[i] > epsilon) {
@@ -385,7 +390,7 @@ int select_nonbasic(struct simplex_t* s) {
     return -1;
 }
 
-int init(struct simplex_t* s, int m, int n, double** a, double* b, double* c, double* x, double y, int* var) {
+int init(struct simplex_t* s, int m, int n, double** a, double* b, double* c, double* x, double y, int* var)    {
     int i, k;
 
     s->m = m;
@@ -418,18 +423,15 @@ void print_node(struct node_t* p) {
     printf("%14s = %10d\n%14s = %10d\n", "h", p->h, "k", p->k);
     printf("%14s = %10.3lf\n%14s = %10.3lf\n%14s = %10.3lf\n", "xh", p->xh, "ak", p->ak, "bk", p->bk);
     printf("%14s = ", "max z");
-    for (size_t i = 0; i < p->n + 1; i++)
-    {
+    for (size_t i = 0; i < p->n + 1; i++) {
         printf("%10.3lf*x_%ld", p->c[i], i);
         if(i != p->n){
             printf(" + ");
         }
     }
     printf("\n");
-    for (size_t i = 0; i < p->m + 1; i++)
-    {
-        for (size_t j = 0; j < p->n + 1; j++)
-        {
+    for (size_t i = 0; i < p->m + 1; i++) {
+        for (size_t j = 0; j < p->n + 1; j++) {
             printf("%10.3lf*x_%ld", p->a[i][j], j);
             if(j != p->n){
                 printf(" + ");
@@ -440,8 +442,7 @@ void print_node(struct node_t* p) {
         printf("\n");
     }
     printf("%14s = ", "min");
-    for (size_t i = 0; i < p->n + 1; i++)
-    {
+    for (size_t i = 0; i < p->n + 1; i++) {
         printf("%10.3lf", p->min[i]);
         if(i != p->n){
             printf(", ");
@@ -449,8 +450,7 @@ void print_node(struct node_t* p) {
     }
     printf("\n");
     printf("%14s = ", "max");
-    for (size_t i = 0; i < p->n + 1; i++)
-    {
+    for (size_t i = 0; i < p->n + 1; i++) {
         printf("%10.3lf", p->max[i]);
         if(i != p->n){
             printf(", ");
@@ -574,7 +574,7 @@ int integer(struct node_t* p) {
     return 1;
 }
 
-void bound(struct node_t* p, struct node_pointer_t* h, double* zp, double* x) {
+void bound(struct node_t* p, struct set_t* h, double* zp, double* x) {
     if (p->z > *zp) {
         *zp = p->z;
         memcpy(x, p->x, (p->n + 1) * sizeof(double));
@@ -631,7 +631,7 @@ int branch(struct node_t* q, double z) {
     return 0;
 }
 
-void succ(struct node_t* p, struct node_pointer_t* h, int m, int n, double** a, double* b, double* c, int k, double ak, double bk, double* zp, double* x) {
+void succ(struct node_t* p, struct set_t* h, int m, int n, double** a, double* b, double* c, int k, double ak, double bk, double* zp, double* x) {
     struct node_t* q = extend(p, m, n, a, b, c, k, ak, bk);
 
     if (q == NULL) {
@@ -654,7 +654,7 @@ void succ(struct node_t* p, struct node_pointer_t* h, int m, int n, double** a, 
 
 double intopt(int m, int n, double** a, double* b, double* c, double* x) {
     struct node_t* p = initial_node(m, n, a, b, c);
-    struct node_pointer_t* h = create_set();
+    struct set_t* h = create_set();
     add(h, p);
 
     double z = -INFINITY;
@@ -701,8 +701,8 @@ void free_node(struct node_t* p) {
     free(p);
 }
 
-struct node_pointer_t* create_set() {
-    struct node_pointer_t* h = (struct node_pointer_t*)calloc(1, sizeof(struct node_pointer_t));
+struct set_t* create_set() {
+    struct set_t* h = (struct set_t*)calloc(1, sizeof(struct set_t));
     h->alloc = 10;
     h->count = 0;
     h->nodes = (struct node_t**)calloc(h->alloc, sizeof(struct node_t*));
@@ -714,7 +714,7 @@ struct node_pointer_t* create_set() {
     return h;
 }
 
-void add(struct node_pointer_t* h, struct node_t* p) {
+void add(struct set_t* h, struct node_t* p) {
     int i;
 
     if (h->count < h->alloc) {
@@ -736,11 +736,11 @@ void add(struct node_pointer_t* h, struct node_t* p) {
     }
 }
 
-int size(struct node_pointer_t* h) {
+int size(struct set_t* h) {
     return h->count;
 }
 
-struct node_t* pop(struct node_pointer_t* h) {
+struct node_t* pop(struct set_t* h) {
     struct node_t* p;
     for (int i = 0; i < h->alloc; i++) {
         if ((h->nodes)[i]) {
@@ -755,7 +755,7 @@ struct node_t* pop(struct node_pointer_t* h) {
 }
 
 
-void free_set(struct node_pointer_t* h) {
+void free_set(struct set_t* h) {
     free(h->nodes);
     free(h);
 }
