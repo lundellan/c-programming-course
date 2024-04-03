@@ -12,12 +12,12 @@
 int stack[N];
 int current_index = -1;
 
-int error_occured = 0;
-int program_finished = 0;
+int error_found = 0;
+int finished = 0;
 int current_line = 1;
 
 void error()	{
-	error_occured = 1;
+	error_found = 1;
 	current_index = -1;
 	current_line++;
 }
@@ -27,24 +27,24 @@ int main(void)	{
 
 	int term_1, term_2;
 
-	while (!program_finished)	{
-		if (error_occured)	{
+	while (!finished)	{
+		if (error_found)	{
 			while (current_char != '\n')	{
 				current_char = getchar();
 			}
-			error_occured = 0;
+			error_found = 0;
 		}
 
 		print_line = 1;
 
-		while (!error_occured)	{
+		while (!error_found)	{
 			current_char = getchar();
 			if (print_line)	{
 				if (current_char != EOF)	{
 					printf("line %d: ", current_line);
 					print_line = 0;
 				} else	{
-					program_finished = 1;
+					finished = 1;
 					break;
 				}
 			}
@@ -85,7 +85,7 @@ int main(void)	{
 					current_line++;
 					break;
 				} else if (current_char == EOF)	{
-					program_finished = 1;
+					finished = 1;
 					break;
 				} else	{
 					if (!pop(&term_2) || !pop(&term_1))	{
